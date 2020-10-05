@@ -26,8 +26,6 @@ exampleSocket.onmessage = function (event) {
             const row = placeTable.insertRow();
             for (let j = 0; j < tableSize[1]; j++) {
                 const cell = row.insertCell();
-                cell.class = 'content';
-                cell.style.border = '1px solid #ccc';
                 cell.onclick = function () {
                     // tableText(this);
                     exampleSocket.send(JSON.stringify([i, j]))
