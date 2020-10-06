@@ -28,7 +28,7 @@ exampleSocket.onmessage = function (event) {
                 const cell = row.insertCell();
                 cell.onclick = function () {
                     // tableText(this);
-                    exampleSocket.send(JSON.stringify([i, j]))
+                    exampleSocket.send(JSON.stringify([i, j, localStorage.getItem('color')]))
                 };
             }
         }
@@ -38,7 +38,8 @@ exampleSocket.onmessage = function (event) {
     for (const square of matrix) {
         console.log(square)
         const cell = placeTable.rows[square[0]].cells[square[1]]
-        cell.style.background = '#ccc'
+        cell.style.background = square[2]
+        console.log(square[2])
     }
     // console.log(event.data);
 }

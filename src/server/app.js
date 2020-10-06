@@ -1,9 +1,8 @@
 const WebSocketServer = require('websocket').server;
 const http = require('http');
 
-const matrix =[
-    [30, 30],
-    [1,1]
+const colorMatrix =[
+    [30, 30]
 ]
 
 const connections = []
@@ -32,9 +31,29 @@ function originIsAllowed(origin) {
   return true;
 }
 
+function insertOrReplaceCell(cell) {
+    const existingCell = findInMatrix(cell)
+    if (existingCell) {
+        colorMatrix.splice(colorMatrix.indexOf(existingCell), 1)
+    }
+    colorMatrix.push(cell)
+}
+
+function findInMatrix(e) {
+    if (typeof e !== 'object' || e.length !== 3) {
+        throw Error('Invalid cell')
+    }
+    for (const cell of colorMatrix) {
+        if (e[0] == cell[0] && e[1] == cell[1]) {
+            return cell
+        }
+    }
+    return null
+}
+
 wsServer.on('connect', function(connection) {
     console.log(`New connection ${connection}`)
-    connection.sendUTF(JSON.stringify(matrix))
+    connection.sendUTF(JSON.stringify(colorMatrix))
 })
  
 wsServer.on('request', function(request) {
@@ -52,20 +71,14 @@ wsServer.on('request', function(request) {
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
             const msg = JSON.parse(message.utf8Data)
-            matrix.push(msg)
+            insertOrReplaceCell(msg)
             for (conn of connections) {
-                conn.sendUTF(JSON.stringify(matrix));
+                conn.sendUTF(JSON.stringify(colorMatrix));
             }
         }
-        // else if (message.type === 'binary') {
-        //     console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-        //     connection.sendBytes(message.binaryData);
-        // }
     });
     connection.on('close', function(closedConnection, reasonCode, description) {
-        console.log('Before: ' + connections.length)
         connections.splice(connections.indexOf(closedConnection, 1))
-        console.log('After: ' + connections.length)
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
 });
